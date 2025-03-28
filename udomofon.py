@@ -4,8 +4,11 @@ from datetime import datetime
 import yaml
 from typing import Dict, Union, Optional
 
+
 def load_secrets() -> Dict[str, str]:
-    # Чтение логина и пароля из файла secrets.yaml
+    """
+    Чтение логина и пароля из файла secrets.yaml.
+    """
     try:
         with open("/config/secrets.yaml", "r") as file:
             return yaml.safe_load(file) or {}
@@ -14,8 +17,11 @@ def load_secrets() -> Dict[str, str]:
     except yaml.YAMLError as error:
         raise RuntimeError(f"Ошибка при чтении YAML-файла: {error}")
 
+
 def authenticate_and_fetch_data() -> str:
-    # Получение данных через API
+    """
+    Получение данных через API.
+    """
     try:
         secrets = load_secrets()
     except RuntimeError as error:
@@ -69,14 +75,21 @@ def authenticate_and_fetch_data() -> str:
             data_response.raise_for_status()
 
             data: Dict = data_response.json()
-            return f"Запрос на открытие двери выполнен успешно. Данные: {json.dumps(data)}"
-        
+            return (
+                f"Запрос на открытие двери выполнен успешно. "
+                f"Данные: {json.dumps(data)}"
+            )
+
         except requests.RequestException as error:
             return f"Ошибка сети: {error}"
         except ValueError:
             return "Ответ не соответствует формату JSON"
 
+
 def main() -> None:
+    """
+    Главная функция.
+    """
     result: str = authenticate_and_fetch_data()
     current_time: str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
@@ -86,6 +99,7 @@ def main() -> None:
             log_file.write(f"[{current_time}] {result}\n")
     except IOError as error:
         print(f"Ошибка записи log-файла: {error}")
+
 
 if __name__ == "__main__":
     main()
